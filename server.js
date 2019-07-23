@@ -1,12 +1,12 @@
-require("dotenv").config({ path: "variables.env" });
-
 const express = require("express");
 const cors = require("cors");
 const Pusher = require("pusher");
 const NewsAPI = require("newsapi");
 const env = require("./client/variables.env");
+const bodyParser = require("body-parser");
 
 const app = express();
+app.use(bodyParser.json());
 
 const pusher = new Pusher({
   appId: env.PUSHER_APP_ID,
@@ -39,15 +39,26 @@ function updateFeed(topic) {
         counter += 1;
       })
       .catch(error => console.log(error));
-  }, 5000);
+  }, 6000);
 }
 
 app.get("/live", (req, res) => {
-  const topic = "bitcoin";
+  const topic = "technology";
   fetchNews(topic, 1)
     .then(response => {
       res.json(response.articles);
-      updateFeed(topic);
+      // updateFeed(topic);
+    })
+    .catch(error => console.log(error));
+});
+
+app.post("/api/search", (req, res) => {
+  let topic = req.body.firstParam;
+  fetchNews(topic, 1)
+    .then(response => {
+      console.log(response.articles);
+      res.json(response.articles);
+      // updateFeed(topic);
     })
     .catch(error => console.log(error));
 });
