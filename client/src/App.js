@@ -4,7 +4,35 @@ import pushid from "pushid";
 import "./App.css";
 
 class App extends Component {
-  state = { newsItems: [] };
+  constructor(props) {
+    super(props);
+    this.state = { newsItems: [], value: "" };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
+  handleSubmit(event) {
+    alert("Subject Submitted:" + this.state.value);
+    var topic = this.state.value;
+    console.log("THIS IS THE TOPIC", topic);
+    event.preventDefault();
+
+    fetch("http://localhost:5000/api/search", {
+      method: "POST",
+      body: JSON.stringify({ firstParam: topic }),
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      }
+    })
+      .then(res => res.json())
+      .then(response => console.log("SUCCESS"));
+  }
 
   componentDidMount() {
     fetch("http://localhost:5000/live")
@@ -28,11 +56,10 @@ class App extends Component {
       });
     });
   }
-
   render() {
     const NewsItem = (article, id) => (
       <li key={id}>
-        <a href={`${article.url}`}>{article.title}</a>
+        <a href={`${article.url}`}>{article.description}</a>
       </li>
     );
 
@@ -41,7 +68,15 @@ class App extends Component {
     return (
       <div className="App">
         <h1 className="App-title">News Feed</h1>
-
+        <form className="news-search" onSubmit={this.handleSubmit}>
+          <input
+            className="submit-button"
+            type="text"
+            onChange={this.handleChange}
+            value={this.state.value}
+          />
+          <input className="submit-button" type="submit" value="Submit" />
+        </form>
         <ul className="news-items">{newsItems}</ul>
       </div>
     );
