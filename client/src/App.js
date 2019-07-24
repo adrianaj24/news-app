@@ -6,10 +6,11 @@ import "./App.css";
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { newsItems: [], value: "" };
+    this.state = { newsItems: [], value: "", searchedItems: [] };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.clearState = this.clearState.bind(this);
   }
 
   handleChange(event) {
@@ -17,7 +18,6 @@ class App extends Component {
   }
 
   handleSubmit(event) {
-    alert("Subject Submitted:" + this.state.value);
     var topic = this.state.value;
     console.log("THIS IS THE TOPIC", topic);
     event.preventDefault();
@@ -31,8 +31,18 @@ class App extends Component {
       }
     })
       .then(res => res.json())
-      .then(response => console.log("SUCCESS"));
+      .then(response => {
+        this.clearState();
+        this.setState({
+          searchedItems: [...this.state.searchedItems, ...response]
+        });
+      })
+      .catch(error => console.log(error));
   }
+
+  clearState = () => {
+    this.setState({ searchedItems: [] });
+  };
 
   componentDidMount() {
     fetch("http://localhost:5000/live")
@@ -63,23 +73,50 @@ class App extends Component {
       </li>
     );
 
-    const newsItems = this.state.newsItems.map(e => NewsItem(e, pushid()));
-
-    return (
-      <div className="App">
-        <h1 className="App-title">News Feed</h1>
-        <form className="news-search" onSubmit={this.handleSubmit}>
-          <input
-            className="submit-button"
-            type="text"
-            onChange={this.handleChange}
-            value={this.state.value}
-          />
-          <input className="submit-button" type="submit" value="Submit" />
-        </form>
-        <ul className="news-items">{newsItems}</ul>
-      </div>
+    const SearchedItem = (article, id) => (
+      <li key={id}>
+        <a href={`${article.url}`}>{article.description}</a>
+      </li>
     );
+
+    const newsItems = this.state.newsItems.map(e => NewsItem(e, pushid()));
+    const SearchedItems = this.state.searchedItems.map(e =>
+      SearchedItem(e, pushid())
+    );
+
+    if (this.state.searchedItems.length === 0) {
+      return (
+        <div className="App">
+          <h1 className="App-title">News Feed</h1>
+          <form className="news-search" onSubmit={this.handleSubmit}>
+            <input
+              className="submit-button"
+              type="text"
+              onChange={this.handleChange}
+              value={this.state.value}
+            />
+            <input className="submit-button" type="submit" value="Submit" />
+          </form>
+          <ul className="news-items">{newsItems}</ul>
+        </div>
+      );
+    } else {
+      return (
+        <div className="App">
+          <h1 className="App-title">News Feed</h1>
+          <form className="news-search" onSubmit={this.handleSubmit}>
+            <input
+              className="submit-button"
+              type="text"
+              onChange={this.handleChange}
+              value={this.state.value}
+            />
+            <input className="submit-button" type="submit" value="Submit" />
+          </form>
+          <ul className="news-items">{SearchedItems}</ul>
+        </div>
+      );
+    }
   }
 }
 
