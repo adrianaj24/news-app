@@ -69,13 +69,19 @@ class App extends Component {
   render() {
     const NewsItem = (article, id) => (
       <li key={id}>
-        <a href={`${article.url}`}>{article.description}</a>
+        <a target="_blank" href={`${article.url}`}>
+          {article.title}
+        </a>
+        <p>{article.description}</p>
       </li>
     );
 
     const SearchedItem = (article, id) => (
       <li key={id}>
-        <a href={`${article.url}`}>{article.description}</a>
+        <a target="_blank" href={`${article.url}`}>
+          {article.title}
+        </a>
+        <p>{article.description}</p>
       </li>
     );
 
@@ -95,7 +101,7 @@ class App extends Component {
               onChange={this.handleChange}
               value={this.state.value}
             />
-            <input className="submit-button" type="submit" value="Submit" />
+            <input className="submit-button" type="submit" value="Search" />
           </form>
           <ul className="news-items">{newsItems}</ul>
         </div>
